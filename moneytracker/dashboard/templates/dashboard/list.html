@@ -1,0 +1,31 @@
+{% extends "dashboard/index.html" %}
+{% block title %}
+  All expenses
+{% endblock title %}
+{% block content %}
+  <div>
+    <h2>All Expenses</h2>
+    <table>
+      <tr>
+        <th>Date</th>
+        <th>Description</th>
+        <th>Amount</th>
+        <th>Payer</th>
+        <th>Shared With</th>
+      </tr>
+      {% for e in expenses %}
+        <tr>
+          <td>{{ e.date }}</td>
+          <td>{{ e.description }}</td>
+          <td>{{ e.amount }}</td>
+          <td>{{ e.payer }}</td>
+          <td>
+            {% for u in e.shared_with.all %}{{ u.username }}{% endfor %}
+          </td>
+        </tr>
+      {% endfor %}
+    </table>
+    <a href="{% url 'dashboard:create_expense' %}">Add Expense</a>
+    <a href="{% url 'dashboard:settle_up' %}">Settle Up</a>
+  </div>
+{% endblock content %}

@@ -1,0 +1,24 @@
+{% extends "dashboard/index.html" %}
+{% block title %}
+  Settle
+{% endblock title %}
+{% block content %}
+  <div>
+    <h2>Settle Up</h2>
+    <h3>Balances</h3>
+    <ul>
+      {% for user, amount in balances.items %}<li>{{ user }}: {{ amount|floatformat:2 }}</li>{% endfor %}
+    </ul>
+    <h3>Transactions</h3>
+    <ul>
+      {% for t in transactions %}
+        <li>
+          <strong>{{ t.from_user }}</strong> pays <strong>₨{{ t.amount|floatformat:2 }}</strong> to <strong>{{ t.to_user }}</strong>
+        </li>
+      {% empty %}
+        <li>All settled up!</li>
+      {% endfor %}
+    </ul>
+    <a href="{% url 'dashboard:expense_list' %}">Back</a>
+  </div>
+{% endblock content %}

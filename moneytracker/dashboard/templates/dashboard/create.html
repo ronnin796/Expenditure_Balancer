@@ -1,0 +1,14 @@
+{% extends "dashboard/index.html" %}
+{% block title %}
+  Add expense
+{% endblock title %}
+{% block content %}
+  <div>
+    <h2>Add Expense</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Add</button>
+    </form>
+  </div>
+{% endblock content %}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <!-- Meta description tailored for a marketplace -->
+        <meta name="description" content="Expense Tracker" />
+        <!-- Meta keywords for marketplace relevance (optional) -->
+        <meta name="keywords" content="Expenses" />
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+                defer></script>
+        <title>
+            {% block title %}
+                Default
+            {% endblock title %}
+        | Expenses Tracker</title>
+        <link rel="stylesheet" href="">
+    </head>
+    <body>
+        <a href="{% url 'category:category_list' %}">
+            <h1>Category List</h1>
+        </a>
+        <a href="{% url 'dashboard:expense_list' %}">
+            <h1>Expenses</h1>
+        </a>
+        <a href="{% url 'dashboard:index' %}">
+            <h1>Dashboard</h1>
+        </a>
+        <a href="{% url 'users:login' %}">
+            <h1>Login</h1>
+        </a>
+        <a href="{% url 'users:signup' %}">
+            <h1>Signup</h1>
+        </a>
+        {% if user.is_authenticated %}
+            <form method="POST" action="{% url 'users:logout' %}">
+                {% csrf_token %}
+                <button type="submit"
+                        class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-100">Logout</button>
+            </form>
+        {% endif %}
+        <div class="container mx-auto px-6 py-6">
+            {% block content %}
+                <h1>Select Something</h1>
+            {% endblock content %}
+        </div>
+        <script src="" async defer></script>
+    </body>
+</html>
