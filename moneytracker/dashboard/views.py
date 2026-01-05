@@ -80,5 +80,6 @@ def settle_up(request):
 
     return render(request, 'dashboard/settle.html', {
         'balances': balances,
-        'transactions': transactions
+        'transactions': transactions ,
+        'expenses': expenses,
     })

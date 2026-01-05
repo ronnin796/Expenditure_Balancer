@@ -1,24 +1,336 @@
 {% extends "dashboard/index.html" %}
-{% block title %}
-  Settle
-{% endblock title %}
+
+{% block title %}Settle Up{% endblock title %}
+
 {% block content %}
-  <div>
-    <h2>Settle Up</h2>
-    <h3>Balances</h3>
-    <ul>
-      {% for user, amount in balances.items %}<li>{{ user }}: {{ amount|floatformat:2 }}</li>{% endfor %}
-    </ul>
-    <h3>Transactions</h3>
-    <ul>
-      {% for t in transactions %}
-        <li>
-          <strong>{{ t.from_user }}</strong> pays <strong>₨{{ t.amount|floatformat:2 }}</strong> to <strong>{{ t.to_user }}</strong>
-        </li>
-      {% empty %}
-        <li>All settled up!</li>
-      {% endfor %}
-    </ul>
-    <a href="{% url 'dashboard:expense_list' %}">Back</a>
+<div class="max-w-7xl mx-auto">
+  <!-- Header -->
+  <div class="mb-8">
+    <div class="flex items-center mb-3">
+      <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl flex items-center justify-center mr-4">
+        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-3xl font-bold text-gray-800">Settle Up</h2>
+        <p class="text-gray-600">Detailed breakdown of balances and settlements</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary Stats -->
+  {% if balances %}
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <!-- Total Expenses -->
+    <div class="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl shadow-lg p-6 text-white">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-blue-100 text-sm font-medium mb-1">Total Expenses</p>
+          <p class="text-3xl font-bold">₨{{ expenses }}</p>
+        </div>
+        <div class="w-14 h-14 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- People Involved -->
+    <div class="bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl shadow-lg p-6 text-white">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-purple-100 text-sm font-medium mb-1">People Involved</p>
+          <p class="text-3xl font-bold">{{ balances|length }}</p>
+        </div>
+        <div class="w-14 h-14 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settlements Needed -->
+    <div class="bg-gradient-to-br from-green-500 to-green-600 rounded-2xl shadow-lg p-6 text-white">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-green-100 text-sm font-medium mb-1">Settlements Needed</p>
+          <p class="text-3xl font-bold">{{ transactions|length }}</p>
+        </div>
+        <div class="w-14 h-14 bg-white bg-opacity-20 rounded-xl flex items-center justify-center">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="grid lg:grid-cols-2 gap-6 mb-6">
+    <!-- Balances Card -->
+    <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center">
+          <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-gray-800">Current Balances</h3>
+        </div>
+        <span class="text-xs font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">Individual</span>
+      </div>
+
+      {% if balances %}
+        <div class="space-y-3">
+          {% for user, amount in balances.items %}
+            <div class="relative overflow-hidden rounded-xl border-2 {% if amount > 0 %}border-green-200 bg-gradient-to-r from-green-50 to-green-100{% elif amount < 0 %}border-red-200 bg-gradient-to-r from-red-50 to-red-100{% else %}border-gray-200 bg-gradient-to-r from-gray-50 to-gray-100{% endif %} transition-all hover:shadow-md">
+              <div class="flex items-center justify-between p-4">
+                <div class="flex items-center flex-1">
+                  <div class="w-12 h-12 {% if amount > 0 %}bg-gradient-to-br from-green-400 to-green-600{% elif amount < 0 %}bg-gradient-to-br from-red-400 to-red-600{% else %}bg-gradient-to-br from-gray-400 to-gray-600{% endif %} rounded-full flex items-center justify-center text-white font-bold mr-3 shadow-lg">
+                    {{ user|slice:":1"|upper }}
+                  </div>
+                  <div class="flex-1">
+                    <span class="font-bold text-gray-800 text-lg">{{ user }}</span>
+                    {% if amount > 0 %}
+                      <p class="text-xs text-green-600 font-medium">Receives money</p>
+                    {% elif amount < 0 %}
+                      <p class="text-xs text-red-600 font-medium">Owes money</p>
+                    {% else %}
+                      <p class="text-xs text-gray-500 font-medium">All settled</p>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="text-right">
+                  {% if amount > 0 %}
+                    <div class="text-2xl font-bold text-green-700">+₨{{ amount|floatformat:2 }}</div>
+                    <div class="text-xs text-green-600 font-medium flex items-center justify-end mt-1">
+                      <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd" />
+                      </svg>
+                      To receive
+                    </div>
+                  {% elif amount < 0 %}
+                    <div class="text-2xl font-bold text-red-700">-₨{{ amount|floatformat:2|slice:"1:" }}</div>
+                    <div class="text-xs text-red-600 font-medium flex items-center justify-end mt-1">
+                      <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clip-rule="evenodd" />
+                      </svg>
+                      To pay
+                    </div>
+                  {% else %}
+                    <div class="text-2xl font-bold text-gray-600">₨0.00</div>
+                    <div class="text-xs text-gray-500 font-medium flex items-center justify-end mt-1">
+                      <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                      </svg>
+                      Balanced
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+              
+              <!-- Progress bar indicator -->
+              {% if amount != 0 %}
+              <div class="h-1 {% if amount > 0 %}bg-green-200{% else %}bg-red-200{% endif %}">
+                <div class="h-full {% if amount > 0 %}bg-green-500{% else %}bg-red-500{% endif %} transition-all duration-500" style="width: {{ amount|floatformat:0|slice:"1:" }}%"></div>
+              </div>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="text-center py-8">
+          <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <svg class="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p class="text-gray-500">No balance information available</p>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Transactions Card -->
+    <div class="bg-white rounded-2xl shadow-xl p-6 border border-gray-100">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center">
+          <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-3">
+            <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-gray-800">Settlement Plan</h3>
+        </div>
+        <span class="text-xs font-semibold text-purple-600 bg-purple-100 px-3 py-1 rounded-full">Optimized</span>
+      </div>
+
+      {% if transactions %}
+        <div class="space-y-4">
+          {% for t in transactions %}
+            <div class="relative p-5 rounded-xl border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white hover:shadow-lg transition-all group">
+              <!-- Transaction Flow -->
+              <div class="flex items-center justify-between mb-4">
+                <div class="flex items-center flex-1">
+                  <!-- From User -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg ring-4 ring-purple-100">
+                      {{ t.from_user|slice:":1"|upper }}
+                    </div>
+                    <span class="text-xs font-semibold text-gray-600 mt-2">{{ t.from_user }}</span>
+                  </div>
+                  
+                  <!-- Arrow with amount -->
+                  <div class="flex-1 mx-4 relative">
+                    <div class="flex items-center justify-center">
+                      <div class="flex-1 h-0.5 bg-gradient-to-r from-purple-300 to-green-300"></div>
+                      <div class="mx-2 px-4 py-2 bg-white border-2 border-purple-300 rounded-lg shadow-sm">
+                        <div class="text-xs text-purple-600 font-semibold">PAYS</div>
+                        <div class="text-lg font-bold text-purple-700">₨{{ t.amount|floatformat:2 }}</div>
+                      </div>
+                      <div class="flex-1 h-0.5 bg-gradient-to-r from-green-300 to-green-400"></div>
+                    </div>
+                    <!-- Animated Arrow -->
+                    <div class="absolute top-1/2 right-0 transform -translate-y-1/2">
+                      <svg class="w-6 h-6 text-green-500 animate-pulse" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+                      </svg>
+                    </div>
+                  </div>
+                  
+                  <!-- To User -->
+                  <div class="flex flex-col items-center">
+                    <div class="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white font-bold shadow-lg ring-4 ring-green-100">
+                      {{ t.to_user|slice:":1"|upper }}
+                    </div>
+                    <span class="text-xs font-semibold text-gray-600 mt-2">{{ t.to_user }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Transaction Summary -->
+              <div class="text-center bg-white rounded-lg py-3 px-4 border border-purple-100">
+                <p class="text-sm text-gray-700">
+                  <span class="font-bold text-purple-700">{{ t.from_user }}</span>
+                  <span class="text-gray-500 mx-2">transfers</span>
+                  <span class="font-bold text-green-700">₨{{ t.amount|floatformat:2 }}</span>
+                  <span class="text-gray-500 mx-2">to</span>
+                  <span class="font-bold text-green-700">{{ t.to_user }}</span>
+                </p>
+              </div>
+
+              <!-- Step indicator -->
+              <div class="absolute top-3 right-3 w-7 h-7 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs font-bold shadow-lg">
+                {{ forloop.counter }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Settlement Summary -->
+        <div class="mt-6 bg-gradient-to-r from-green-50 to-green-100 border-2 border-green-300 rounded-xl p-4">
+          <div class="flex items-center">
+            <svg class="w-6 h-6 text-green-600 mr-3" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <div>
+              <p class="text-sm font-bold text-green-900">Optimized Settlement</p>
+              <p class="text-xs text-green-700">Complete {{ transactions|length }} transaction{{ transactions|length|pluralize }} to settle all balances</p>
+            </div>
+          </div>
+        </div>
+
+      {% else %}
+        <!-- All Settled State -->
+        <div class="text-center py-12">
+          <div class="w-24 h-24 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center mx-auto mb-6 animate-bounce">
+            <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <h4 class="text-2xl font-bold text-gray-800 mb-3">All Settled Up! 🎉</h4>
+          <p class="text-gray-600 mb-6">Everyone is square. No outstanding balances.</p>
+          <div class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl font-bold shadow-lg">
+            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            Perfect Balance: ₨0.00
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- How Settlement Works Explanation -->
+  {% if transactions %}
+  <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-2xl shadow-lg p-6 border-2 border-indigo-200 mb-6">
+    <div class="flex items-start">
+      <div class="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center mr-4 flex-shrink-0">
+        <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+        </svg>
+      </div>
+      <div class="flex-1">
+        <h4 class="text-lg font-bold text-indigo-900 mb-3">💡 How the Settlement Algorithm Works</h4>
+        <div class="space-y-3 text-sm text-indigo-800">
+          <div class="flex items-start">
+            <span class="inline-flex items-center justify-center w-6 h-6 bg-indigo-600 text-white rounded-full text-xs font-bold mr-3 flex-shrink-0 mt-0.5">1</span>
+            <p><strong>Calculate Net Balances:</strong> The system determines who owes money (negative balance) and who should receive money (positive balance) based on all shared expenses.</p>
+          </div>
+          <div class="flex items-start">
+            <span class="inline-flex items-center justify-center w-6 h-6 bg-indigo-600 text-white rounded-full text-xs font-bold mr-3 flex-shrink-0 mt-0.5">2</span>
+            <p><strong>Optimize Transactions:</strong> Instead of having everyone pay everyone else, the algorithm minimizes the number of transactions needed by matching people who owe with people who are owed.</p>
+          </div>
+          <div class="flex items-start">
+            <span class="inline-flex items-center justify-center w-6 h-6 bg-indigo-600 text-white rounded-full text-xs font-bold mr-3 flex-shrink-0 mt-0.5">3</span>
+            <p><strong>Simplified Payments:</strong> The result is the minimum number of transactions (shown above) to settle all balances efficiently.</p>
+          </div>
+        </div>
+        <div class="mt-4 p-3 bg-white rounded-lg border border-indigo-200">
+          <p class="text-xs text-indigo-700"><strong>Example:</strong> If Alice owes ₨100, Bob is owed ₨60, and Carol is owed ₨40, instead of 2 separate transactions, Alice can pay Bob ₨60 and Carol ₨40 in just 2 transfers.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- Info Cards -->
+  <div class="grid md:grid-cols-2 gap-4">
+    <div class="bg-blue-50 border border-blue-200 rounded-xl p-4">
+      <div class="flex items-start">
+        <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+        </svg>
+        <div>
+          <h4 class="text-sm font-semibold text-blue-900 mb-1">Balance Breakdown</h4>
+          <p class="text-sm text-blue-800">Positive balances indicate money to receive, negative balances show money owed. The settlement plan shows the exact payments needed.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bg-green-50 border border-green-200 rounded-xl p-4">
+      <div class="flex items-start">
+        <svg class="w-5 h-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+        </svg>
+        <div>
+          <h4 class="text-sm font-semibold text-green-900 mb-1">Settlement Instructions</h4>
+          <p class="text-sm text-green-800">Follow the numbered transactions in order. Once complete, all balances will be zero and everyone will be settled up.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Back Button -->
+  <div class="mt-8 text-center">
+    <a href="{% url 'dashboard:expense_list' %}" class="inline-flex items-center text-gray-600 hover:text-gray-900 font-medium transition-colors group">
+      <svg class="w-5 h-5 mr-2 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+      </svg>
+      Back
+    </a>
   </div>
 {% endblock content %}
