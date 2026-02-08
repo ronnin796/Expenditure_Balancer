@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Expense Tracker - Split expenses and settle up with friends" />
     <meta name="keywords" content="expenses, split bills, money tracker" />
-    <title>{% block title %}Expense Tracker{% endblock title %}</title>
+    <title>{% block title %}Home{% endblock title %} | ExpenseTracker</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -62,19 +62,19 @@
                 </a>
                 <div class="flex items-center gap-1 sm:gap-2">
                     <div class="hidden sm:flex items-center gap-1">
-                        <a href="{% url 'category:category_list' %}" class="px-4 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">Categories</a>
+                        <a href="{% url 'category:category_list' %}" class="px-4 py-2 rounded-lg transition-colors text-sm font-medium {% if request.resolver_match.view_name == 'category:category_list' %}bg-slate-800 text-white{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">Categories</a>
                         {% if user.is_authenticated %}
-                            <a href="{% url 'dashboard:index' %}" class="px-4 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">Dashboard</a>
-                            <a href="{% url 'dashboard:expense_list' %}" class="px-4 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">Expenses</a>
-                            <a href="{% url 'dashboard:create_expense' %}" class="px-4 py-2 rounded-lg bg-brand-500 text-slate-950 hover:bg-brand-400 font-medium transition-colors text-sm">Add Expense</a>
-                            <a href="{% url 'dashboard:settle_up' %}" class="px-4 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">Settle Up</a>
+                            <a href="{% url 'dashboard:index' %}" class="px-4 py-2 rounded-lg transition-colors text-sm font-medium {% if request.resolver_match.view_name == 'dashboard:index' %}bg-slate-800 text-white{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">Dashboard</a>
+                            <a href="{% url 'dashboard:expense_list' %}" class="px-4 py-2 rounded-lg transition-colors text-sm font-medium {% if request.resolver_match.view_name == 'dashboard:expense_list' %}bg-slate-800 text-white{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">Expenses</a>
+                            <a href="{% url 'dashboard:create_expense' %}" class="px-4 py-2 rounded-lg transition-colors text-sm font-medium {% if request.resolver_match.view_name == 'dashboard:create_expense' %}bg-brand-400 text-slate-950{% else %}bg-brand-500 text-slate-950 hover:bg-brand-400{% endif %}">Add Expense</a>
+                            <a href="{% url 'dashboard:settle_up' %}" class="px-4 py-2 rounded-lg transition-colors text-sm font-medium {% if request.resolver_match.view_name == 'dashboard:settle_up' %}bg-slate-800 text-white{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">Settle Up</a>
                             <form method="POST" action="{% url 'users:logout' %}" class="inline">
                                 {% csrf_token %}
                                 <button type="submit" class="px-4 py-2 rounded-lg text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors text-sm font-medium">Logout</button>
                             </form>
                         {% else %}
-                            <a href="{% url 'users:login' %}" class="px-4 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">Login</a>
-                            <a href="{% url 'users:signup' %}" class="px-4 py-2 rounded-lg bg-brand-500 text-slate-950 hover:bg-brand-400 font-medium transition-colors text-sm">Sign Up</a>
+                            <a href="{% url 'users:login' %}" class="px-4 py-2 rounded-lg transition-colors text-sm font-medium {% if request.resolver_match.view_name == 'users:login' %}bg-slate-800 text-white{% else %}text-slate-300 hover:bg-slate-800 hover:text-white{% endif %}">Login</a>
+                            <a href="{% url 'users:signup' %}" class="px-4 py-2 rounded-lg transition-colors text-sm font-medium {% if request.resolver_match.view_name == 'users:signup' %}bg-brand-400 text-slate-950{% else %}bg-brand-500 text-slate-950 hover:bg-brand-400{% endif %}">Sign Up</a>
                         {% endif %}
                     </div>
                     <!-- Mobile menu button -->
@@ -88,19 +88,19 @@
             <!-- Mobile menu -->
             <div @click.away="mobileOpen = false" class="sm:hidden" :class="mobileOpen ? 'block' : 'hidden'">
                 <div class="py-4 space-y-1 border-t border-slate-800">
-                    <a href="{% url 'category:category_list' %}" class="block px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800">Categories</a>
+                    <a href="{% url 'category:category_list' %}" @click="mobileOpen = false" class="block px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 {% if request.resolver_match.view_name == 'category:category_list' %}bg-slate-800 text-white{% endif %}">Categories</a>
                     {% if user.is_authenticated %}
-                        <a href="{% url 'dashboard:index' %}" class="block px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800">Dashboard</a>
-                        <a href="{% url 'dashboard:expense_list' %}" class="block px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800">Expenses</a>
-                        <a href="{% url 'dashboard:create_expense' %}" class="block px-4 py-3 rounded-lg bg-brand-500 text-slate-950 font-medium">Add Expense</a>
-                        <a href="{% url 'dashboard:settle_up' %}" class="block px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800">Settle Up</a>
+                        <a href="{% url 'dashboard:index' %}" @click="mobileOpen = false" class="block px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 {% if request.resolver_match.view_name == 'dashboard:index' %}bg-slate-800 text-white{% endif %}">Dashboard</a>
+                        <a href="{% url 'dashboard:expense_list' %}" @click="mobileOpen = false" class="block px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 {% if request.resolver_match.view_name == 'dashboard:expense_list' %}bg-slate-800 text-white{% endif %}">Expenses</a>
+                        <a href="{% url 'dashboard:create_expense' %}" @click="mobileOpen = false" class="block px-4 py-3 rounded-lg text-slate-950 font-medium {% if request.resolver_match.view_name == 'dashboard:create_expense' %}bg-brand-400{% else %}bg-brand-500{% endif %} hover:bg-brand-400">Add Expense</a>
+                        <a href="{% url 'dashboard:settle_up' %}" @click="mobileOpen = false" class="block px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 {% if request.resolver_match.view_name == 'dashboard:settle_up' %}bg-slate-800 text-white{% endif %}">Settle Up</a>
                         <form method="POST" action="{% url 'users:logout' %}">
                             {% csrf_token %}
                             <button type="submit" class="block w-full text-left px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/20">Logout</button>
                         </form>
                     {% else %}
-                        <a href="{% url 'users:login' %}" class="block px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800">Login</a>
-                        <a href="{% url 'users:signup' %}" class="block px-4 py-3 rounded-lg bg-brand-500 text-slate-950 font-medium">Sign Up</a>
+                        <a href="{% url 'users:login' %}" @click="mobileOpen = false" class="block px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800 {% if request.resolver_match.view_name == 'users:login' %}bg-slate-800 text-white{% endif %}">Login</a>
+                        <a href="{% url 'users:signup' %}" @click="mobileOpen = false" class="block px-4 py-3 rounded-lg text-slate-950 font-medium {% if request.resolver_match.view_name == 'users:signup' %}bg-brand-400{% else %}bg-brand-500{% endif %} hover:bg-brand-400">Sign Up</a>
                     {% endif %}
                 </div>
             </div>
@@ -109,6 +109,15 @@
 
     <!-- Main content -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% if messages %}
+        <div class="mb-6 space-y-2">
+            {% for message in messages %}
+            <div class="p-4 rounded-xl {% if message.tags == 'success' %}bg-emerald-50 border border-emerald-200 text-emerald-800{% elif message.tags == 'error' %}bg-red-50 border border-red-200 text-red-800{% else %}bg-slate-100 border border-slate-200 text-slate-800{% endif %} text-sm font-medium">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
         {% block content %}
         {% endblock content %}
     </main>

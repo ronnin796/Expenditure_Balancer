@@ -1,25 +1,20 @@
-from django.shortcuts import render,redirect
-
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth import login
 from .forms import SignupForm
-# Create your views here.
-
-
-
-
 
 
 def signup(request):
-    if request.method =='POST':
-        form = SignupForm(request.POST  )
-
+    if request.method == 'POST':
+        form = SignupForm(request.POST)
         if form.is_valid():
-            form.save()
-            return redirect('dashboard/login/')
+            user = form.save()
+            login(request, user)
+            messages.success(request, 'Welcome! Your account has been created.')
+            return redirect('dashboard:index')
     else:
         form = SignupForm()
-
-    return render(request , 'users/signup.html', {'form':form})
+    return render(request, 'users/signup.html', {'form': form})
 
 
 

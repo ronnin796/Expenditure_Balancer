@@ -3,36 +3,66 @@
 {% block content %}
 <div class="mb-8">
     <h1 class="text-3xl font-bold text-slate-900 tracking-tight">Settle Up</h1>
-    <p class="text-slate-600 mt-1">See balances and who should pay whom</p>
+    <p class="text-slate-600 mt-1">See balances, who should pay whom, and why</p>
 </div>
+
+<!-- How it works -->
+<div class="mb-8 p-4 rounded-xl bg-slate-100/80 border border-slate-200">
+    <p class="text-sm text-slate-700">
+        <strong>How it works:</strong> Your <em>balance</em> = what you paid − your fair share of group expenses. 
+        Positive = you're owed money. Negative = you owe money. The transactions below show the minimal payments needed to settle everyone up.
+    </p>
+</div>
+
 <div class="grid lg:grid-cols-2 gap-8">
+    <!-- Balances with breakdown -->
     <div class="bg-white rounded-2xl shadow-soft border border-slate-100 overflow-hidden">
         <h3 class="px-6 py-4 bg-slate-50/80 border-b border-slate-100 text-sm font-semibold text-slate-700">Balances</h3>
         <ul class="divide-y divide-slate-100">
-            {% for user, amount in balances.items %}
-            <li class="px-6 py-4 flex justify-between items-center">
-                <span class="font-medium text-slate-900">{{ user }}</span>
-                <span class="font-mono font-semibold {% if amount > 0 %}text-emerald-600{% elif amount < 0 %}text-red-600{% else %}text-slate-500{% endif %}">
-                    {% if amount > 0 %}+{% endif %}₨{{ amount|floatformat:2 }}
-                </span>
+            {% for entry in balance_entries %}
+            <li class="px-6 py-4">
+                <div class="flex justify-between items-center">
+                    <span class="font-medium text-slate-900">{{ entry.user }}{% if entry.user == user.username %} <span class="text-brand-600 text-xs font-normal">(you)</span>{% endif %}</span>
+                    <span class="font-mono font-semibold {% if entry.amount > 0 %}text-emerald-600{% elif entry.amount < 0 %}text-red-600{% else %}text-slate-500{% endif %}">
+                        {% if entry.amount > 0 %}+{% endif %}₨{{ entry.amount|floatformat:2 }}
+                    </span>
+                </div>
+                <p class="mt-1.5 text-xs text-slate-500">
+                    Paid ₨{{ entry.total_paid|floatformat:2 }} · Share ₨{{ entry.total_share|floatformat:2 }}
+                    {% if entry.amount > 0 %}— they're owed money{% elif entry.amount < 0 %}— they owe money{% endif %}
+                </p>
             </li>
             {% empty %}
             <li class="px-6 py-12 text-center text-slate-500">No balances to display</li>
             {% endfor %}
         </ul>
     </div>
+
+    <!-- Transactions with explanations -->
     <div class="bg-white rounded-2xl shadow-soft border border-slate-100 overflow-hidden">
-        <h3 class="px-6 py-4 bg-slate-50/80 border-b border-slate-100 text-sm font-semibold text-slate-700">Transactions</h3>
+        <h3 class="px-6 py-4 bg-slate-50/80 border-b border-slate-100 text-sm font-semibold text-slate-700">Settlement transactions</h3>
         <ul class="divide-y divide-slate-100">
             {% for t in transactions %}
-            <li class="px-6 py-4 flex items-center gap-3">
-                <span class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-mono text-sm flex-shrink-0">→</span>
-                <div class="min-w-0">
-                    <span class="font-medium text-slate-900">{{ t.from_user }}</span>
-                    <span class="text-slate-500 mx-1">pays</span>
-                    <span class="font-mono font-semibold text-slate-900">₨{{ t.amount|floatformat:2 }}</span>
-                    <span class="text-slate-500 mx-1">to</span>
-                    <span class="font-medium text-slate-900">{{ t.to_user }}</span>
+            <li class="px-6 py-4">
+                <div class="flex items-start gap-3">
+                    <span class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 font-mono text-sm flex-shrink-0">→</span>
+                    <div class="min-w-0 flex-1">
+                        <p class="font-medium text-slate-900">
+                            <span>{{ t.from_user }}{% if t.from_user == user.username %} <span class="text-brand-600 text-xs font-normal">(you)</span>{% endif %}</span>
+                            <span class="text-slate-500 mx-1">pays</span>
+                            <span class="font-mono font-semibold text-slate-900">₨{{ t.amount|floatformat:2 }}</span>
+                            <span class="text-slate-500 mx-1">to</span>
+                            <span>{{ t.to_user }}{% if t.to_user == user.username %} <span class="text-brand-600 text-xs font-normal">(you)</span>{% endif %}</span>
+                        </p>
+                        <details class="mt-2 group">
+                            <summary class="text-xs text-slate-500 cursor-pointer hover:text-slate-700 select-none">Why?</summary>
+                            <p class="mt-1.5 text-xs text-slate-600 pl-2 border-l-2 border-slate-200 space-y-1">
+                                <strong>{{ t.to_user }}</strong> paid ₨{{ t.to_paid|floatformat:2 }} (share: ₨{{ t.to_share|floatformat:2 }}) — overpaid, is owed money.<br>
+                                <strong>{{ t.from_user }}</strong> paid ₨{{ t.from_paid|floatformat:2 }} (share: ₨{{ t.from_share|floatformat:2 }}) — underpaid, owes money.<br>
+                                {{ t.from_user }} pays {{ t.to_user }} ₨{{ t.amount|floatformat:2 }} to settle.
+                            </p>
+                        </details>
+                    </div>
                 </div>
             </li>
             {% empty %}
@@ -46,10 +76,14 @@
         </ul>
     </div>
 </div>
-<div class="mt-6">
+
+<div class="mt-6 flex flex-wrap gap-4">
     <a href="{% url 'dashboard:expense_list' %}" class="inline-flex items-center gap-2 text-slate-600 hover:text-slate-900 font-medium">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
         Back to expenses
+    </a>
+    <a href="{% url 'dashboard:create_expense' %}" class="inline-flex items-center gap-2 text-brand-600 hover:text-brand-500 font-medium">
+        Add another expense
     </a>
 </div>
 {% endblock content %}
