@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Expense Tracker - Split expenses and settle up with friends" />
+    <meta name="keywords" content="expenses, split bills, money tracker" />
+    <title>{% block title %}Expense Tracker{% endblock title %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'system-ui', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fefce8',
+                            100: '#fef9c3',
+                            200: '#fef08a',
+                            300: '#fde047',
+                            400: '#facc15',
+                            500: '#eab308',
+                            600: '#ca8a04',
+                            700: '#a16207',
+                            800: '#854d0e',
+                            900: '#713f12',
+                        },
+                        slate: {
+                            850: '#172033',
+                            950: '#0f1729',
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 2px 15px -3px rgba(0, 0, 0, 0.07), 0 10px 20px -2px rgba(0, 0, 0, 0.04)',
+                        'glow': '0 0 40px -10px rgba(234, 179, 8, 0.3)',
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <style>
+        [x-cloak] { display: none !important; }
+        .input-focus:focus { outline: none; }
+    </style>
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen flex flex-col bg-slate-50 font-sans text-slate-800 antialiased">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-slate-950 text-white shadow-lg" x-data="{ mobileOpen: false }">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <a href="{% url 'category:index' %}" class="flex items-center gap-2 font-semibold text-lg tracking-tight hover:text-brand-400 transition-colors">
+                    <span class="w-8 h-8 rounded-lg bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center text-slate-950 font-bold text-sm">₨</span>
+                    <span>ExpenseTracker</span>
+                </a>
+                <div class="flex items-center gap-1 sm:gap-2">
+                    <div class="hidden sm:flex items-center gap-1">
+                        <a href="{% url 'category:category_list' %}" class="px-4 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">Categories</a>
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'dashboard:index' %}" class="px-4 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">Dashboard</a>
+                            <a href="{% url 'dashboard:expense_list' %}" class="px-4 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">Expenses</a>
+                            <a href="{% url 'dashboard:create_expense' %}" class="px-4 py-2 rounded-lg bg-brand-500 text-slate-950 hover:bg-brand-400 font-medium transition-colors text-sm">Add Expense</a>
+                            <a href="{% url 'dashboard:settle_up' %}" class="px-4 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">Settle Up</a>
+                            <form method="POST" action="{% url 'users:logout' %}" class="inline">
+                                {% csrf_token %}
+                                <button type="submit" class="px-4 py-2 rounded-lg text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors text-sm font-medium">Logout</button>
+                            </form>
+                        {% else %}
+                            <a href="{% url 'users:login' %}" class="px-4 py-2 rounded-lg text-slate-300 hover:bg-slate-800 hover:text-white transition-colors text-sm font-medium">Login</a>
+                            <a href="{% url 'users:signup' %}" class="px-4 py-2 rounded-lg bg-brand-500 text-slate-950 hover:bg-brand-400 font-medium transition-colors text-sm">Sign Up</a>
+                        {% endif %}
+                    </div>
+                    <!-- Mobile menu button -->
+                    <button @click="mobileOpen = !mobileOpen" type="button" class="sm:hidden p-2 rounded-lg hover:bg-slate-800" aria-label="Toggle menu">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <!-- Mobile menu -->
+            <div @click.away="mobileOpen = false" class="sm:hidden" :class="mobileOpen ? 'block' : 'hidden'">
+                <div class="py-4 space-y-1 border-t border-slate-800">
+                    <a href="{% url 'category:category_list' %}" class="block px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800">Categories</a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard:index' %}" class="block px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800">Dashboard</a>
+                        <a href="{% url 'dashboard:expense_list' %}" class="block px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800">Expenses</a>
+                        <a href="{% url 'dashboard:create_expense' %}" class="block px-4 py-3 rounded-lg bg-brand-500 text-slate-950 font-medium">Add Expense</a>
+                        <a href="{% url 'dashboard:settle_up' %}" class="block px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800">Settle Up</a>
+                        <form method="POST" action="{% url 'users:logout' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="block w-full text-left px-4 py-3 rounded-lg text-red-400 hover:bg-red-500/20">Logout</button>
+                        </form>
+                    {% else %}
+                        <a href="{% url 'users:login' %}" class="block px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-800">Login</a>
+                        <a href="{% url 'users:signup' %}" class="block px-4 py-3 rounded-lg bg-brand-500 text-slate-950 font-medium">Sign Up</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main content -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {% block content %}
+        {% endblock content %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-auto border-t border-slate-200 bg-white py-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-slate-500 text-sm">
+            ExpenseTracker — Split expenses, settle up easily
+        </div>
+    </footer>
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>

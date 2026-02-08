@@ -28,9 +28,6 @@ def expense_list(request):
     return render(request, 'dashboard/list.html', {'expenses': expenses})
 
 @login_required
-
-
-
 def settle_up(request):
     expenses = Expense.objects.all().prefetch_related('shared_with').select_related('payer')
     balances = defaultdict(float)

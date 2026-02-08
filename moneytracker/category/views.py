@@ -10,4 +10,4 @@ def category_list(request):
     context = {
         'categories': categories,
     }
-    return render(request, 'category/category_list.html')
+    return render(request, 'category/category_list.html', context)

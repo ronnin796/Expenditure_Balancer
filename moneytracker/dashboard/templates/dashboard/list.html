@@ -1,31 +1,62 @@
-{% extends "dashboard/index.html" %}
-{% block title %}
-  All expenses
-{% endblock title %}
+{% extends "base.html" %}
+{% block title %}All Expenses{% endblock title %}
 {% block content %}
-  <div>
-    <h2>All Expenses</h2>
-    <table>
-      <tr>
-        <th>Date</th>
-        <th>Description</th>
-        <th>Amount</th>
-        <th>Payer</th>
-        <th>Shared With</th>
-      </tr>
-      {% for e in expenses %}
-        <tr>
-          <td>{{ e.date }}</td>
-          <td>{{ e.description }}</td>
-          <td>{{ e.amount }}</td>
-          <td>{{ e.payer }}</td>
-          <td>
-            {% for u in e.shared_with.all %}{{ u.username }}{% endfor %}
-          </td>
-        </tr>
-      {% endfor %}
-    </table>
-    <a href="{% url 'dashboard:create_expense' %}">Add Expense</a>
-    <a href="{% url 'dashboard:settle_up' %}">Settle Up</a>
-  </div>
+<div class="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div>
+        <h1 class="text-3xl font-bold text-slate-900 tracking-tight">All Expenses</h1>
+        <p class="text-slate-600 mt-1">Your expense history</p>
+    </div>
+    <div class="flex gap-3">
+        <a href="{% url 'dashboard:create_expense' %}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-brand-500 text-slate-950 font-semibold hover:bg-brand-400 transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Add Expense
+        </a>
+        <a href="{% url 'dashboard:settle_up' %}" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl border border-slate-200 text-slate-700 font-medium hover:bg-slate-50 transition-colors">
+            Settle Up
+        </a>
+    </div>
+</div>
+<div class="bg-white rounded-2xl shadow-soft border border-slate-100 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="border-b border-slate-200 bg-slate-50/80">
+                    <th class="text-left py-4 px-6 text-sm font-semibold text-slate-600">Date</th>
+                    <th class="text-left py-4 px-6 text-sm font-semibold text-slate-600">Description</th>
+                    <th class="text-right py-4 px-6 text-sm font-semibold text-slate-600">Amount</th>
+                    <th class="text-left py-4 px-6 text-sm font-semibold text-slate-600">Payer</th>
+                    <th class="text-left py-4 px-6 text-sm font-semibold text-slate-600">Shared With</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in expenses %}
+                <tr class="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
+                    <td class="py-4 px-6 text-slate-600 text-sm">{{ e.date|date:"M d, Y" }}</td>
+                    <td class="py-4 px-6 font-medium text-slate-900">{{ e.description }}</td>
+                    <td class="py-4 px-6 text-right font-mono font-semibold text-slate-900">₨{{ e.amount|floatformat:2 }}</td>
+                    <td class="py-4 px-6">
+                        <span class="inline-flex items-center px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 text-sm">{{ e.payer.username }}</span>
+                    </td>
+                    <td class="py-4 px-6">
+                        <div class="flex flex-wrap gap-1">
+                            {% for u in e.shared_with.all %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-slate-50 text-slate-600 text-xs">{{ u.username }}</span>
+                            {% empty %}
+                            <span class="text-slate-400 text-sm">—</span>
+                            {% endfor %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="py-16 text-center text-slate-500">
+                        <span class="block text-4xl mb-2">₨</span>
+                        No expenses yet. <a href="{% url 'dashboard:create_expense' %}" class="text-brand-600 hover:text-brand-500 font-medium">Add your first expense</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 {% endblock content %}

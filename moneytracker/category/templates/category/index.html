@@ -1,50 +1,29 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <!-- Meta description tailored for a marketplace -->
-        <meta name="description" content="Expense Tracker" />
-        <!-- Meta keywords for marketplace relevance (optional) -->
-        <meta name="keywords" content="Expenses" />
-        <script src="https://cdn.tailwindcss.com"></script>
-        <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
-                defer></script>
-        <title>
-            {% block title %}
-                Default
-            {% endblock title %}
-        | Expenses Tracker</title>
-        <link rel="stylesheet" href="">
-    </head>
-    <body>
-        <a href="{% url 'category:category_list' %}">
-            <h1>Category List</h1>
-        </a>
-        <a href="{% url 'dashboard:expense_list' %}">
-            <h1>Expenses</h1>
-        </a>
-        <a href="{% url 'dashboard:index' %}">
-            <h1>Dashboard</h1>
-        </a>
-        <a href="{% url 'users:login' %}">
-            <h1>Login</h1>
-        </a>
-        <a href="{% url 'users:signup' %}">
-            <h1>Signup</h1>
-        </a>
+{% extends "base.html" %}
+{% block title %}Home{% endblock title %}
+{% block content %}
+<div class="text-center py-16">
+    <h1 class="text-4xl sm:text-5xl font-bold text-slate-900 mb-4 tracking-tight">
+        Split expenses.<br> Settle up easily.
+    </h1>
+    <p class="text-xl text-slate-600 max-w-2xl mx-auto mb-12">
+        Track shared expenses with friends and family. Add expenses, split bills, and see who owes whom—all in one place.
+    </p>
+    <div class="flex flex-col sm:flex-row gap-4 justify-center">
         {% if user.is_authenticated %}
-            <form method="POST" action="{% url 'users:logout' %}">
-                {% csrf_token %}
-                <button type="submit"
-                        class="w-full text-left px-4 py-2 text-red-600 hover:bg-red-100">Logout</button>
-            </form>
+            <a href="{% url 'dashboard:create_expense' %}" class="inline-flex items-center justify-center px-8 py-4 rounded-xl bg-brand-500 text-slate-950 font-semibold hover:bg-brand-400 transition-colors shadow-soft">
+                Add Expense
+            </a>
+            <a href="{% url 'dashboard:expense_list' %}" class="inline-flex items-center justify-center px-8 py-4 rounded-xl border-2 border-slate-300 text-slate-700 font-semibold hover:border-slate-400 hover:bg-slate-50 transition-colors">
+                View Expenses
+            </a>
+        {% else %}
+            <a href="{% url 'users:signup' %}" class="inline-flex items-center justify-center px-8 py-4 rounded-xl bg-brand-500 text-slate-950 font-semibold hover:bg-brand-400 transition-colors shadow-soft">
+                Get Started
+            </a>
+            <a href="{% url 'users:login' %}" class="inline-flex items-center justify-center px-8 py-4 rounded-xl border-2 border-slate-300 text-slate-700 font-semibold hover:border-slate-400 hover:bg-slate-50 transition-colors">
+                Login
+            </a>
         {% endif %}
-        <div class="container mx-auto px-6 py-6">
-            {% block content %}
-                <h1>Select Something</h1>
-            {% endblock content %}
-        </div>
-        <script src="" async defer></script>
-    </body>
-</html>
+    </div>
+</div>
+{% endblock content %}
